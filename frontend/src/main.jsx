@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client'
-import Signup from './signup'
+import App from './app.jsx'
 
 createRoot(document.getElementById('root')).render(
-        <Signup />
+        <App />
 )

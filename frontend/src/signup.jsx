@@ -1,15 +1,21 @@
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
 const Signup = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             const response = await axios.post('api/auth/register/', { name:name, email:email, password:password });
+            
+            if (response.status === 201) {
+                navigate('/login');
+            }
         } catch (error) {
             console.error('Error signing up:', error.response.data);
         }
