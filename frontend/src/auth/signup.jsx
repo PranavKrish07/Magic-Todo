@@ -18,6 +18,7 @@ const Signup = () => {
             }
         } catch (error) {
             console.error('Error signing up:', error.response.data);
+            alert("Signup failed: " + (error.response?.data?.detail || "Unknown error"));
         }
     };
 
