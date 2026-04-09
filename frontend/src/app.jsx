@@ -22,7 +22,7 @@ function App() {
         
         <Route path="/login" element={auth ? <Navigate to="/home" /> : <Login setAuth={setAuth} />} />
 
-        <Route path="/home" element={auth ? <Home /> : <Navigate to="/login" />} />
+        <Route path="/home" element={auth ? <Home setAuth={setAuth} /> : <Navigate to="/login" />} />
       </Routes>
     </Router>
   );

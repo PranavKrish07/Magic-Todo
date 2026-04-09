@@ -31,6 +31,7 @@ const Signup = () => {
                     id="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    autoComplete="off"
                 />
             </div>
             <div>
@@ -40,6 +41,7 @@ const Signup = () => {
                     id="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="off"
                 />
             </div>
             <div>
@@ -49,6 +51,7 @@ const Signup = () => {
                     id="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="off"
                 />
             </div>
             <button type="submit">Sign Up</button>
