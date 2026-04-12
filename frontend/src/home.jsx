@@ -7,6 +7,7 @@ const Home = ({ setAuth }) => {
     const [loading, setLoading] = useState(true);
     const [listName, setListName] = useState('');
     const [taskInputs, setTaskInputs] = useState({});
+    const [isGenerating, setIsGenerating] = useState({});
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -121,6 +122,27 @@ const Home = ({ setAuth }) => {
             }));
         } catch (error) {
             console.error('Error deleting task:', error);
+        }
+    };
+
+    const handleGenerateTasks = async (listId) => {
+        setIsGenerating(prev => ({ ...prev, [listId]: true }));
+        try {
+            const accessToken = localStorage.getItem('access_token');
+            const response = await axios.post(`/api/lists/${listId}/generate_tasks/`, {}, {
+                headers: { Authorization: `Bearer ${accessToken}` }
+            });
+            setLists(lists.map(list => {
+                if (list.id === listId) {
+                    return { ...list, tasks: [...(list.tasks || []), ...response.data] };
+                }
+                return list;
+            }));
+        } catch (error) {
+            console.error('Error generating tasks:', error);
+            alert("Failed to generate tasks. Make sure GEMINI_API_KEY is set in the backend environment.");
+        } finally {
+            setIsGenerating(prev => ({ ...prev, [listId]: false }));
         }
     };
 
@@ -310,15 +332,34 @@ const Home = ({ setAuth }) => {
                                             </p>
                                         </div>
                                     </div>
-                                    <button
-                                        onClick={() => handleDeleteList(list.id)}
-                                        className="p-2 rounded-lg text-slate-600 opacity-0 group-hover:opacity-100 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300 cursor-pointer bg-transparent border-0"
-                                        title="Delete list"
-                                    >
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                                        </svg>
-                                    </button>
+                                    <div className="flex items-center gap-1">
+                                        <button
+                                            onClick={() => handleGenerateTasks(list.id)}
+                                            disabled={isGenerating[list.id]}
+                                            className="p-2 rounded-lg text-teal-400 opacity-60 hover:opacity-100 hover:bg-teal-500/10 transition-all duration-300 cursor-pointer bg-transparent border-0 disabled:opacity-50 disabled:cursor-not-allowed group/gen relative flex items-center justify-center w-8 h-8"
+                                            title="Generate tasks with AI"
+                                        >
+                                            {isGenerating[list.id] ? (
+                                                <svg className="w-4 h-4 animate-spin text-teal-400" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                                </svg>
+                                            ) : (
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+                                                </svg>
+                                            )}
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteList(list.id)}
+                                            className="p-2 rounded-lg text-slate-600 opacity-0 group-hover:opacity-100 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300 cursor-pointer bg-transparent border-0 flex items-center justify-center w-8 h-8"
+                                            title="Delete list"
+                                        >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                            </svg>
+                                        </button>
+                                    </div>
                                 </div>
 
                                 {/* Progress bar */}
