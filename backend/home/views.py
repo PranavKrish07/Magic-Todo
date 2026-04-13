@@ -20,13 +20,35 @@ class ListViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def generate_tasks(self, request, pk=None):
         my_list = self.get_object()
+        user_api_key = request.user.gemini_api_key
+        
+        if not user_api_key:
+            return Response(
+                {"error": "No Gemini API key found. Please update your profile settings."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         
         try:
-            client = genai.Client()
-            response = client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=f"Generate 5-7 actionable, short task names for a to-do list named '{my_list.name}'. Return ONLY a JSON array of strings, with no markdown code blocks or extra text. Example: [\"Task 1\", \"Task 2\"]",
-            )
+            client = genai.Client(api_key=user_api_key)
+            import time
+            max_retries = 3
+            last_error = None
+            
+            for attempt in range(max_retries):
+                try:
+                    response = client.models.generate_content(
+                        model='gemini-flash-lite-latest',
+                        contents=f"Generate 5-7 actionable, short task names for a to-do list named '{my_list.name}'. Return ONLY a JSON array of strings, with no markdown code blocks or extra text. Example: [\"Task 1\", \"Task 2\"]",
+                    )
+                    break
+                except Exception as api_e:
+                    last_error = str(api_e)
+                    if '503' in last_error or '429' in last_error:
+                        time.sleep(2 * (attempt + 1))
+                    else:
+                        raise api_e
+            else:
+                raise Exception(f"Google APIs overloaded. Last error: {last_error}")
             
             output_text = response.text.strip()
             if output_text.startswith("```json"):

@@ -5,7 +5,7 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'name', 'password']
+        fields = ['id', 'email', 'name', 'password', 'gemini_api_key']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):

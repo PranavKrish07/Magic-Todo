@@ -24,6 +24,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    gemini_api_key = models.CharField(max_length=255, blank=True, null=True)
 
     objects = UserManager()
 

@@ -8,6 +8,9 @@ const Home = ({ setAuth }) => {
     const [listName, setListName] = useState('');
     const [taskInputs, setTaskInputs] = useState({});
     const [isGenerating, setIsGenerating] = useState({});
+    const [showSettings, setShowSettings] = useState(false);
+    const [apiKeyInput, setApiKeyInput] = useState('');
+    const [hasApiKey, setHasApiKey] = useState(true);
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -18,20 +21,35 @@ const Home = ({ setAuth }) => {
     };
 
     useEffect(() => {
-        const fetchLists = async () => {
+        const fetchProfileAndLists = async () => {
             try {
                 const accessToken = localStorage.getItem('access_token');
+                
+                // Fetch user profile first
+                const profileRes = await axios.get('/api/auth/profile/', {
+                    headers: { Authorization: `Bearer ${accessToken}` }
+                });
+                
+                if (profileRes.data.gemini_api_key) {
+                    setApiKeyInput(profileRes.data.gemini_api_key);
+                    setHasApiKey(true);
+                } else {
+                    setHasApiKey(false);
+                    setShowSettings(true); // Pop up if missing
+                }
+
+                // Fetch lists
                 const response = await axios.get('/api/lists/', {
                     headers: { Authorization: `Bearer ${accessToken}` }
                 });
                 setLists(response.data);
             } catch (error) {
-                console.error('Error fetching lists:', error);
+                console.error('Error fetching data:', error);
             } finally {
                 setLoading(false);
             }
         };
-        fetchLists();
+        fetchProfileAndLists();
     }, []);
 
     const handleCreateList = async (e) => {
@@ -126,6 +144,10 @@ const Home = ({ setAuth }) => {
     };
 
     const handleGenerateTasks = async (listId) => {
+        if (!hasApiKey) {
+            setShowSettings(true);
+            return;
+        }
         setIsGenerating(prev => ({ ...prev, [listId]: true }));
         try {
             const accessToken = localStorage.getItem('access_token');
@@ -140,9 +162,37 @@ const Home = ({ setAuth }) => {
             }));
         } catch (error) {
             console.error('Error generating tasks:', error);
-            alert("Failed to generate tasks. Make sure GEMINI_API_KEY is set in the backend environment.");
+            const errorMessage = error.response?.data?.error || "Failed to generate tasks. Please ensure your Gemini API Key is correct.";
+            
+            // Format nice alerts for common API errors
+            if (errorMessage.includes("503 UNAVAILABLE") || errorMessage.includes("high demand") || errorMessage.includes("overloaded")) {
+                alert("Gemini is currently experiencing high demand. Please try again in a moment.");
+            } else {
+                alert(`Error: ${errorMessage}`);
+            }
+            
+            if (error.response?.status === 400) {
+                setShowSettings(true);
+            }
         } finally {
             setIsGenerating(prev => ({ ...prev, [listId]: false }));
+        }
+    };
+
+    const handleSaveApiKey = async (e) => {
+        e.preventDefault();
+        try {
+            const accessToken = localStorage.getItem('access_token');
+            await axios.patch('/api/auth/profile/', 
+                { gemini_api_key: apiKeyInput }, 
+                { headers: { Authorization: `Bearer ${accessToken}` }}
+            );
+            setHasApiKey(!!apiKeyInput);
+            setShowSettings(false);
+            alert("API Key saved successfully!");
+        } catch (error) {
+            console.error('Error saving API Key:', error);
+            alert("Failed to save API key.");
         }
     };
 
@@ -179,15 +229,27 @@ const Home = ({ setAuth }) => {
                         </span>
                     </div>
 
-                    <button
-                        onClick={handleLogout}
-                        className="flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-700/50 text-slate-400 text-sm font-medium hover:text-red-400 hover:border-red-500/30 hover:bg-red-500/5 transition-all duration-300 cursor-pointer bg-transparent"
-                    >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
-                        </svg>
-                        Logout
-                    </button>
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => setShowSettings(true)}
+                            className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-700/50 text-slate-400 text-sm font-medium hover:text-teal-400 hover:border-teal-500/30 hover:bg-teal-500/5 transition-all duration-300 cursor-pointer bg-transparent"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            Settings
+                        </button>
+                        <button
+                            onClick={handleLogout}
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-700/50 text-slate-400 text-sm font-medium hover:text-red-400 hover:border-red-500/30 hover:bg-red-500/5 transition-all duration-300 cursor-pointer bg-transparent"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                            </svg>
+                            Logout
+                        </button>
+                    </div>
                 </div>
             </header>
 
@@ -449,6 +511,56 @@ const Home = ({ setAuth }) => {
                     })}
                 </div>
             </main>
+
+            {/* ===== SETTINGS MODAL ===== */}
+            {showSettings && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-md shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-teal-500/10 rounded-full blur-2xl pointer-events-none" />
+                        
+                        <div className="relative z-10">
+                            <h3 className="text-xl font-bold text-white mb-2">AI Settings ✨</h3>
+                            <p className="text-slate-400 text-sm mb-6">
+                                To use the AI task generation feature, please provide your Gemini API key. This key is saved securely to your account.
+                            </p>
+                            
+                            <form onSubmit={handleSaveApiKey}>
+                                <div className="mb-6">
+                                    <label className="block text-slate-300 text-sm font-medium mb-2">Gemini API Key</label>
+                                    <input 
+                                        type="password"
+                                        placeholder="AIzaSy..."
+                                        value={apiKeyInput || ''}
+                                        onChange={e => setApiKeyInput(e.target.value)}
+                                        className="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-all"
+                                    />
+                                    <p className="text-xs text-slate-500 mt-2">
+                                        Don't have one? Get it from <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="text-teal-400 hover:underline">Google AI Studio</a>.
+                                    </p>
+                                </div>
+                                
+                                <div className="flex justify-end gap-3">
+                                    {hasApiKey && (
+                                        <button 
+                                            type="button"
+                                            onClick={() => setShowSettings(false)}
+                                            className="px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-700"
+                                        >
+                                            Cancel
+                                        </button>
+                                    )}
+                                    <button 
+                                        type="submit"
+                                        className="px-6 py-2 rounded-lg bg-gradient-to-r from-teal-500 to-teal-400 text-slate-950 font-semibold hover:from-teal-400 hover:to-teal-300 transition-all shadow-lg shadow-teal-500/20 cursor-pointer"
+                                    >
+                                        Save Key
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Inline keyframe for staggered card entrance */}
             <style>{`
