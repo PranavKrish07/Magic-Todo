@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from './api/client';
 
 const Home = ({ setAuth }) => {
     const [lists, setLists] = useState([]);
@@ -23,12 +23,7 @@ const Home = ({ setAuth }) => {
     useEffect(() => {
         const fetchProfileAndLists = async () => {
             try {
-                const accessToken = localStorage.getItem('access_token');
-                
-                // Fetch user profile first
-                const profileRes = await axios.get('/api/auth/profile/', {
-                    headers: { Authorization: `Bearer ${accessToken}` }
-                });
+                const profileRes = await api.get('/api/auth/profile/');
                 
                 if (profileRes.data.gemini_api_key) {
                     setApiKeyInput(profileRes.data.gemini_api_key);
@@ -39,9 +34,7 @@ const Home = ({ setAuth }) => {
                 }
 
                 // Fetch lists
-                const response = await axios.get('/api/lists/', {
-                    headers: { Authorization: `Bearer ${accessToken}` }
-                });
+                const response = await api.get('/api/lists/');
                 setLists(response.data);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -56,11 +49,8 @@ const Home = ({ setAuth }) => {
         e.preventDefault();
         if (!listName.trim()) return;
         try {
-            const accessToken = localStorage.getItem('access_token');
-            const response = await axios.post('/api/lists/',
-                { name: listName },
-                { headers: { Authorization: `Bearer ${accessToken}` } }
-            );
+            // Example of using the new automated API client
+            const response = await api.post('/api/lists/', { name: listName });
             setLists([...lists, response.data]);
             setListName('');
         } catch (error) {
@@ -72,11 +62,7 @@ const Home = ({ setAuth }) => {
         const taskText = taskInputs[listId];
         if (!taskText?.trim()) return;
         try {
-            const accessToken = localStorage.getItem('access_token');
-            const response = await axios.post('/api/tasks/',
-                { name: taskText, list: listId },
-                { headers: { Authorization: `Bearer ${accessToken}` } }
-            );
+            const response = await api.post('/api/tasks/', { name: taskText, list: listId });
             setLists(lists.map(list => {
                 if (list.id === listId) {
                     return { ...list, tasks: [...(list.tasks || []), response.data] };
@@ -91,11 +77,7 @@ const Home = ({ setAuth }) => {
 
     const handleToggleTask = async (listId, taskId, currentStatus) => {
         try {
-            const accessToken = localStorage.getItem('access_token');
-            await axios.patch(`/api/tasks/${taskId}/`,
-                { completed: !currentStatus },
-                { headers: { Authorization: `Bearer ${accessToken}` } }
-            );
+            await api.patch(`/api/tasks/${taskId}/`, { completed: !currentStatus });
             setLists(lists.map(list => {
                 if (list.id === listId) {
                     return {
@@ -115,10 +97,7 @@ const Home = ({ setAuth }) => {
     const handleDeleteList = async (listId) => {
         if (!window.confirm('Delete this entire list and all its tasks?')) return;
         try {
-            const accessToken = localStorage.getItem('access_token');
-            await axios.delete(`/api/lists/${listId}/`, {
-                headers: { Authorization: `Bearer ${accessToken}` }
-            });
+            await api.delete(`/api/lists/${listId}/`);
             setLists(lists.filter(list => list.id !== listId));
         } catch (error) {
             console.error('Error deleting list:', error);
@@ -128,10 +107,7 @@ const Home = ({ setAuth }) => {
     const handleDeleteTask = async (e, listId, taskId) => {
         e.stopPropagation();
         try {
-            const accessToken = localStorage.getItem('access_token');
-            await axios.delete(`/api/tasks/${taskId}/`, {
-                headers: { Authorization: `Bearer ${accessToken}` }
-            });
+            await api.delete(`/api/tasks/${taskId}/`);
             setLists(lists.map(list => {
                 if (list.id === listId) {
                     return { ...list, tasks: list.tasks.filter(t => t.id !== taskId) };
@@ -150,10 +126,7 @@ const Home = ({ setAuth }) => {
         }
         setIsGenerating(prev => ({ ...prev, [listId]: true }));
         try {
-            const accessToken = localStorage.getItem('access_token');
-            const response = await axios.post(`/api/lists/${listId}/generate_tasks/`, {}, {
-                headers: { Authorization: `Bearer ${accessToken}` }
-            });
+            const response = await api.post(`/api/lists/${listId}/generate_tasks/`);
             setLists(lists.map(list => {
                 if (list.id === listId) {
                     return { ...list, tasks: [...(list.tasks || []), ...response.data] };
@@ -182,11 +155,7 @@ const Home = ({ setAuth }) => {
     const handleSaveApiKey = async (e) => {
         e.preventDefault();
         try {
-            const accessToken = localStorage.getItem('access_token');
-            await axios.patch('/api/auth/profile/', 
-                { gemini_api_key: apiKeyInput }, 
-                { headers: { Authorization: `Bearer ${accessToken}` }}
-            );
+            await api.patch('/api/auth/profile/', { gemini_api_key: apiKeyInput });
             setHasApiKey(!!apiKeyInput);
             setShowSettings(false);
             alert("API Key saved successfully!");
