@@ -1,1 +1,19 @@
+# Environments
+.env
+*.env
+.venv/
+env/
 venv/
+
+# Python/Django
+__pycache__/
+*.py[cod]
+*$py.class
+db.sqlite3
+/static/
+media/
+
+# Frontend
+node_modules/
+dist/
+build/
