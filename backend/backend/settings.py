@@ -66,7 +66,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW__ORIGINS = [
+    "https://magic-todo-akk9xj7mf-pranavkrish07s-projects.vercel.app/"
+]
 CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']
 AUTH_USER_MODEL = 'authentication.User'
 
