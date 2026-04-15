@@ -15,7 +15,7 @@ const Signup = () => {
         setLoading(true);
         setError('');
         try {
-            const response = await axios.post('api/auth/register/', { name, email, password });
+            const response = await axios.post('https://magic-todo-hj9h.onrender.com/api/auth/register/', { name, email, password });
             if (response.status === 201) {
                 navigate('/login');
             }

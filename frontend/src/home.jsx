@@ -50,7 +50,7 @@ const Home = ({ setAuth }) => {
         if (!listName.trim()) return;
         try {
             // Example of using the new automated API client
-            const response = await api.post('/api/lists/', { name: listName });
+            const response = await api.post('https://magic-todo-hj9h.onrender.com/api/lists/', { name: listName });
             setLists([...lists, response.data]);
             setListName('');
         } catch (error) {
@@ -62,7 +62,7 @@ const Home = ({ setAuth }) => {
         const taskText = taskInputs[listId];
         if (!taskText?.trim()) return;
         try {
-            const response = await api.post('/api/tasks/', { name: taskText, list: listId });
+            const response = await api.post('https://magic-todo-hj9h.onrender.com/api/tasks/', { name: taskText, list: listId });
             setLists(lists.map(list => {
                 if (list.id === listId) {
                     return { ...list, tasks: [...(list.tasks || []), response.data] };
@@ -77,7 +77,7 @@ const Home = ({ setAuth }) => {
 
     const handleToggleTask = async (listId, taskId, currentStatus) => {
         try {
-            await api.patch(`/api/tasks/${taskId}/`, { completed: !currentStatus });
+            await api.patch(`https://magic-todo-hj9h.onrender.com/api/tasks/${taskId}/`, { completed: !currentStatus });
             setLists(lists.map(list => {
                 if (list.id === listId) {
                     return {
@@ -97,7 +97,7 @@ const Home = ({ setAuth }) => {
     const handleDeleteList = async (listId) => {
         if (!window.confirm('Delete this entire list and all its tasks?')) return;
         try {
-            await api.delete(`/api/lists/${listId}/`);
+            await api.delete(`https://magic-todo-hj9h.onrender.com/api/lists/${listId}/`);
             setLists(lists.filter(list => list.id !== listId));
         } catch (error) {
             console.error('Error deleting list:', error);
@@ -107,7 +107,7 @@ const Home = ({ setAuth }) => {
     const handleDeleteTask = async (e, listId, taskId) => {
         e.stopPropagation();
         try {
-            await api.delete(`/api/tasks/${taskId}/`);
+            await api.delete(`https://magic-todo-hj9h.onrender.com/api/tasks/${taskId}/`);
             setLists(lists.map(list => {
                 if (list.id === listId) {
                     return { ...list, tasks: list.tasks.filter(t => t.id !== taskId) };
@@ -126,7 +126,7 @@ const Home = ({ setAuth }) => {
         }
         setIsGenerating(prev => ({ ...prev, [listId]: true }));
         try {
-            const response = await api.post(`/api/lists/${listId}/generate_tasks/`);
+            const response = await api.post(`https://magic-todo-hj9h.onrender.com/api/lists/${listId}/generate_tasks/`);
             setLists(lists.map(list => {
                 if (list.id === listId) {
                     return { ...list, tasks: [...(list.tasks || []), ...response.data] };
@@ -155,7 +155,7 @@ const Home = ({ setAuth }) => {
     const handleSaveApiKey = async (e) => {
         e.preventDefault();
         try {
-            await api.patch('/api/auth/profile/', { gemini_api_key: apiKeyInput });
+            await api.patch('https://magic-todo-hj9h.onrender.com/api/auth/profile/', { gemini_api_key: apiKeyInput });
             setHasApiKey(!!apiKeyInput);
             setShowSettings(false);
             alert("API Key saved successfully!");

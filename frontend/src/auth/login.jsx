@@ -14,7 +14,7 @@ const Login = ({ setAuth }) => {
         setLoading(true);
         setError('');
         try {
-            const response = await axios.post('/api/auth/login/', { email, password });
+            const response = await axios.post('https://magic-todo-hj9h.onrender.com/api/auth/login/', { email, password });
             const { access, refresh } = response.data;
             localStorage.setItem('access_token', access);
             localStorage.setItem('refresh_token', refresh);
