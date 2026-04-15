@@ -67,7 +67,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "https://magic-todo-mrvz.vercel.app/"
+    "https://magic-todo-mrvz.vercel.app"
 ]
 CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']
 AUTH_USER_MODEL = 'authentication.User'
