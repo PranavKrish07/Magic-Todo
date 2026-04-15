@@ -29,39 +29,39 @@ const Login = ({ setAuth }) => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4 relative overflow-hidden">
+        <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4 py-6 relative overflow-hidden">
             {/* Decorative orbs */}
-            <div className="absolute top-[-10%] left-[-5%] w-96 h-96 bg-teal-500/8 rounded-full blur-3xl" />
-            <div className="absolute bottom-[-10%] right-[-5%] w-80 h-80 bg-teal-600/6 rounded-full blur-3xl" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-teal-500/3 rounded-full blur-3xl" />
+            <div className="absolute top-[-10%] left-[-5%] w-64 sm:w-96 h-64 sm:h-96 bg-teal-500/8 rounded-full blur-3xl" />
+            <div className="absolute bottom-[-10%] right-[-5%] w-56 sm:w-80 h-56 sm:h-80 bg-teal-600/6 rounded-full blur-3xl" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 sm:w-[600px] h-80 sm:h-[600px] bg-teal-500/3 rounded-full blur-3xl" />
 
             <div className="w-full max-w-md relative z-10">
                 {/* Logo */}
-                <Link to="/" className="flex items-center justify-center gap-2 mb-10 no-underline group">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-400 flex items-center justify-center shadow-lg shadow-teal-500/20 group-hover:shadow-teal-500/40 transition-shadow">
-                        <span className="text-white font-bold text-xl">✦</span>
+                <Link to="/" className="flex items-center justify-center gap-2 mb-8 sm:mb-10 no-underline group">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-teal-500 to-teal-400 flex items-center justify-center shadow-lg shadow-teal-500/20 group-hover:shadow-teal-500/40 transition-shadow flex-shrink-0">
+                        <span className="text-white font-bold text-lg sm:text-xl">✦</span>
                     </div>
-                    <span className="text-2xl font-bold text-white tracking-tight">
+                    <span className="text-xl sm:text-2xl font-bold text-white tracking-tight">
                         Magic<span className="text-teal-400">Todo</span>
                     </span>
                 </Link>
 
                 {/* Card */}
-                <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-800/60 rounded-2xl p-8 shadow-2xl shadow-black/20">
-                    <div className="text-center mb-8">
-                        <h1 className="text-2xl font-bold text-white mb-2">Welcome back</h1>
-                        <p className="text-slate-400 text-sm">Sign in to continue your productivity journey</p>
+                <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-800/60 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-black/20">
+                    <div className="text-center mb-6 sm:mb-8">
+                        <h1 className="text-xl sm:text-2xl font-bold text-white mb-1 sm:mb-2">Welcome back</h1>
+                        <p className="text-slate-400 text-xs sm:text-sm">Sign in to continue your productivity journey</p>
                     </div>
 
                     {error && (
-                        <div className="mb-6 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
+                        <div className="mb-6 px-3 sm:px-4 py-2 sm:py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs sm:text-sm text-center">
                             {error}
                         </div>
                     )}
 
-                    <form onSubmit={handleLogin} className="space-y-5">
+                    <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
                         <div>
-                            <label htmlFor="login-email" className="block text-sm font-medium text-slate-300 mb-2">
+                            <label htmlFor="login-email" className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">
                                 Email address
                             </label>
                             <input
@@ -72,13 +72,13 @@ const Login = ({ setAuth }) => {
                                 placeholder="you@example.com"
                                 autoComplete="email"
                                 required
-                                className="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700/50 text-white placeholder-slate-500 text-sm outline-none transition-all duration-300 focus:border-teal-500/50 focus:ring-2 focus:ring-teal-500/10 hover:border-slate-600"
+                                className="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-xl bg-slate-800/50 border border-slate-700/50 text-white placeholder-slate-500 text-sm outline-none transition-all duration-300 focus:border-teal-500/50 focus:ring-2 focus:ring-teal-500/10 hover:border-slate-600"
                             />
                         </div>
 
                         <div>
-                            <div className="flex items-center justify-between mb-2">
-                                <label htmlFor="login-password" className="block text-sm font-medium text-slate-300">
+                            <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+                                <label htmlFor="login-password" className="block text-xs sm:text-sm font-medium text-slate-300">
                                     Password
                                 </label>
                             </div>
@@ -90,14 +90,14 @@ const Login = ({ setAuth }) => {
                                 placeholder="••••••••"
                                 autoComplete="current-password"
                                 required
-                                className="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700/50 text-white placeholder-slate-500 text-sm outline-none transition-all duration-300 focus:border-teal-500/50 focus:ring-2 focus:ring-teal-500/10 hover:border-slate-600"
+                                className="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-xl bg-slate-800/50 border border-slate-700/50 text-white placeholder-slate-500 text-sm outline-none transition-all duration-300 focus:border-teal-500/50 focus:ring-2 focus:ring-teal-500/10 hover:border-slate-600"
                             />
                         </div>
 
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-teal-600 to-teal-500 text-white font-semibold text-sm shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:from-teal-500 hover:to-teal-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                            className="w-full py-2.5 sm:py-3.5 rounded-xl bg-gradient-to-r from-teal-600 to-teal-500 text-white font-semibold text-sm shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:from-teal-500 hover:to-teal-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                         >
                             {loading ? (
                                 <span className="flex items-center justify-center gap-2">
@@ -113,8 +113,8 @@ const Login = ({ setAuth }) => {
                         </button>
                     </form>
 
-                    <div className="mt-8 pt-6 border-t border-slate-800/60 text-center">
-                        <p className="text-slate-500 text-sm">
+                    <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-slate-800/60 text-center">
+                        <p className="text-slate-500 text-xs sm:text-sm">
                             Don&apos;t have an account?{' '}
                             <Link to="/signup" className="text-teal-400 font-medium hover:text-teal-300 transition-colors no-underline">
                                 Create one free
@@ -123,7 +123,7 @@ const Login = ({ setAuth }) => {
                     </div>
                 </div>
 
-                <p className="text-center text-slate-600 text-xs mt-6">
+                <p className="text-center text-slate-600 text-xs mt-4 sm:mt-6">
                     &copy; {new Date().getFullYear()} Magic Todo
                 </p>
             </div>
