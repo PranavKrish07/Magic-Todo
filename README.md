@@ -2,7 +2,7 @@
 
 A full-stack task management app with AI-powered suggestions, built with Django REST Framework and React.
 
-🔗 **Live Demo**: [frontend](https://magic-todo-mrvz.vercel.app/home) [backend](https://magic-todo-hj9h.onrender.com)
+🔗 **Live Demo**: [frontend](https://magic-todo-mrvz.vercel.app/) [backend](https://magic-todo-hj9h.onrender.com)
 
 
 ---
